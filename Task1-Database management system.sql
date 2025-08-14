@@ -1,0 +1,121 @@
+CREATE database AMS;
+USE AMS;
+CREATE TABLE StudentInfo (
+    STU_ID INT PRIMARY KEY,
+    STU_NAME VARCHAR(100) NOT NULL,
+    DOB DATE,
+    PHONE_NO VARCHAR(15),
+    EMAIL_ID VARCHAR(100),
+    ADDRESS TEXT
+);
+
+CREATE TABLE CoursesInfo (
+    COURSE_ID INT PRIMARY KEY,
+    COURSE_NAME VARCHAR(100) NOT NULL,
+    COURSE_INSTRUCTOR_NAME VARCHAR(100)
+);
+
+CREATE TABLE EnrollmentInfo (
+    ENROLLMENT_ID INT PRIMARY KEY,
+    STU_ID INT,
+    COURSE_ID INT,
+    ENROLL_STATUS VARCHAR(20) CHECK (ENROLL_STATUS IN ('Enrolled', 'Not Enrolled')),
+    FOREIGN KEY (STU_ID) REFERENCES StudentInfo(STU_ID),
+    FOREIGN KEY (COURSE_ID) REFERENCES CoursesInfo(COURSE_ID)
+);
+
+INSERT INTO StudentInfo (STU_ID, STU_NAME, DOB, PHONE_NO, EMAIL_ID, ADDRESS) VALUES
+(1, 'Shirlin', '1995-06-22', '9790625079', 'shirlin@gmail.com', 'ABS, Kuzithurai, Kanyakumai District'),
+(2, 'Sharmi', '1994-05-20', '9744425071', 'sharmi@gmail.com', 'PKK, Velachery, Chennai District'),
+(3, 'Ancy', '1995-04-10', '9790655579', 'ancy@gmail.com', 'RRR, Taramani, Chennai District'),
+(4, 'Dinesh', '1995-12-27', '9791115022', 'dinesh@gmail.com', '22N, Anna Nagar, Chennai District'),
+(5, 'Andrew', '1995-11-29', '9790625654', 'andrew@gmail.com', 'TAN, Nagercoil, Kanyakumai District');
+
+
+INSERT INTO CoursesInfo (COURSE_ID, COURSE_NAME, COURSE_INSTRUCTOR_NAME) VALUES
+(101, 'CSE', 'Mrs. Andrea'),
+(102, 'ECE', 'Mrs. Chandrika'),
+(103, 'IT', 'Mr. John'),
+(104, 'AI', 'Mr. Ram Kumar'),
+(105, 'MECH', 'Mrs. Priyanka');
+
+INSERT INTO EnrollmentInfo (ENROLLMENT_ID, STU_ID, COURSE_ID, ENROLL_STATUS) VALUES
+(1001, 1, 105, 'Enrolled'),
+(1002, 2, 102, 'Enrolled'),
+(1003, 3, 104, 'Not Enrolled'),
+(1004, 4, 103, 'Enrolled'),
+(1005, 5, 101, 'Enrolled'),
+(1006, 1, 102, 'Not Enrolled'),
+(1007, 1, 103, 'Enrolled'),
+(1008, 3, 101, 'Enrolled'),
+(1009, 4, 105, 'Not Enrolled'),
+(1010, 5, 105, 'Enrolled');
+
+SELECT 
+    S.STU_NAME,
+    S.PHONE_NO,
+    S.EMAIL_ID,
+    E.ENROLL_STATUS
+FROM StudentInfo S
+JOIN EnrollmentInfo E ON S.STU_ID = E.STU_ID;
+
+SELECT 
+S.STU_NAME,
+C.COURSE_NAME,
+C.COURSE_INSTRUCTOR_NAME
+FROM StudentInfo S
+JOIN EnrollmentInfo E ON S.STU_ID = E.STU_ID
+JOIN CoursesInfo C ON E.COURSE_ID = C.COURSE_ID
+WHERE S.STU_NAME = 'Shirlin';
+
+SELECT 
+COURSE_NAME,
+COURSE_INSTRUCTOR_NAME
+FROM CoursesInfo;
+
+SELECT 
+COURSE_ID,
+COURSE_NAME,
+COURSE_INSTRUCTOR_NAME
+FROM CoursesInfo
+WHERE COURSE_NAME = 'CSE';
+
+SELECT 
+COURSE_ID,
+COURSE_NAME,
+COURSE_INSTRUCTOR_NAME
+FROM CoursesInfo
+WHERE COURSE_NAME IN ('CSE', 'IT', 'AI');
+
+SELECT * FROM StudentInfo;
+
+SELECT 
+C.COURSE_NAME,
+COUNT(E.STU_ID) AS NumberOfStudents
+FROM CoursesInfo C
+JOIN EnrollmentInfo E ON C.COURSE_ID = E.COURSE_ID
+GROUP BY C.COURSE_NAME;
+
+SELECT S.STU_ID, S.STU_NAME, C.COURSE_NAME
+FROM StudentInfo S
+JOIN EnrollmentInfo E ON S.STU_ID = E.STU_ID
+JOIN CoursesInfo C ON E.COURSE_ID = C.COURSE_ID
+WHERE C.COURSE_NAME = 'CSE';
+
+SELECT C.COURSE_INSTRUCTOR_NAME,
+COUNT(E.STU_ID) AS NumberOfStudents
+FROM CoursesInfo C
+JOIN EnrollmentInfo E ON C.COURSE_ID = E.COURSE_ID
+GROUP BY C.COURSE_INSTRUCTOR_NAME;
+
+SELECT S.STU_ID, S.STU_NAME, COUNT(E.COURSE_ID) AS NumberOfCourses
+FROM StudentInfo S
+JOIN EnrollmentInfo E ON S.STU_ID = E.STU_ID
+GROUP BY S.STU_ID, S.STU_NAME
+HAVING COUNT(E.COURSE_ID) > 1;
+
+SELECT C.COURSE_NAME, C.COURSE_INSTRUCTOR_NAME, COUNT(E.STU_ID) AS NumberOfStudents
+FROM CoursesInfo C
+JOIN EnrollmentInfo E ON C.COURSE_ID = E.COURSE_ID
+GROUP BY C.COURSE_ID, C.COURSE_NAME, C.COURSE_INSTRUCTOR_NAME
+ORDER BY NumberOfStudents DESC;
